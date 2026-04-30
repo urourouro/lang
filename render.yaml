@@ -5,8 +5,6 @@ services:
     buildCommand: cd broker && npm install && npm run build
     startCommand: cd broker && npm start
     envVars:
-      - key: PORT
-        value: 3030
       - key: SPAWN_GENERATORS
         value: "false"
       - key: INGEST_SECRET
@@ -18,8 +16,6 @@ services:
     buildCommand: cd shrine && npm install && npm run build
     startCommand: cd shrine && npm start
     envVars:
-      - key: PORT
-        value: 3031
       - key: BROKER_URL
         fromService:
           type: web

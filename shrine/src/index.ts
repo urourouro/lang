@@ -5,7 +5,7 @@ import { z } from "zod";
 import { createVisit, getVisit, addWord, departVisit, getAllVisits } from "./state.js";
 import { peekWord } from "./broker.js";
 
-const PORT = 3031;
+const PORT = parseInt(process.env.PORT ?? "3031", 10);
 
 function createMcpServer(): McpServer {
   const server = new McpServer({ name: "lang-shrine", version: "0.1.0" });
