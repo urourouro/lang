@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "lang-stream": {
+      "command": "node",
+      "args": ["/Users/itsukidoi/lang/mcp/dist/index.js"],
+      "env": {
+        "BROKER_URL": "http://localhost:3030"
+      }
+    }
+  }
+}

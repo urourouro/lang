@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: lang-broker
+    runtime: node
+    buildCommand: cd broker && npm install && npm run build
+    startCommand: cd broker && npm start
+    envVars:
+      - key: PORT
+        value: 3030
+      - key: SPAWN_GENERATORS
+        value: "false"
+      - key: INGEST_SECRET
+        generateValue: true
+
+  - type: web
+    name: lang-shrine
+    runtime: node
+    buildCommand: cd shrine && npm install && npm run build
+    startCommand: cd shrine && npm start
+    envVars:
+      - key: PORT
+        value: 3031
+      - key: BROKER_URL
+        fromService:
+          type: web
+          name: lang-broker
+          envVarKey: RENDER_EXTERNAL_URL
