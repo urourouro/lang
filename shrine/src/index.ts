@@ -138,14 +138,14 @@ app.get("/", (_req, res) => {
 <meta http-equiv="refresh" content="5">
 <title>kotodama（言霊）</title>
 <style>
-body{background:#000;color:#ccc;font-family:sans-serif;max-width:600px;margin:0 auto;padding:2rem}
-h1{color:#888;font-weight:normal;font-size:1.2rem;letter-spacing:.2em}
-h2{color:#555;font-weight:normal;font-size:.85rem;margin-top:2rem;border-top:1px solid #111;padding-top:1rem;letter-spacing:.1em}
+body{background:#fff;color:#333;font-family:sans-serif;max-width:600px;margin:0 auto;padding:2rem}
+h1{color:#666;font-weight:normal;font-size:1.2rem;letter-spacing:.2em}
+h2{color:#999;font-weight:normal;font-size:.85rem;margin-top:2rem;border-top:1px solid #eee;padding-top:1rem;letter-spacing:.1em}
 .v{margin:.8rem 0}
-.name{color:#ddd}
-.meta{color:#444;font-size:.8rem;margin-top:.2rem}
+.name{color:#111}
+.meta{color:#aaa;font-size:.8rem;margin-top:.2rem}
 .word{color:#888;font-size:.85rem;margin-top:.2rem;font-style:italic}
-.empty{color:#333;font-style:italic}
+.empty{color:#ccc;font-style:italic}
 </style>
 </head>
 <body>
@@ -165,7 +165,7 @@ app.get("/visits", (_req, res) => {
 app.get("/mcp", (_req, res) => {
   res.send(`<!DOCTYPE html>
 <html lang="ja"><head><meta charset="utf-8"><title>kotodama MCP</title>
-<style>body{background:#000;color:#888;font-family:monospace;max-width:600px;margin:2rem auto;padding:2rem}code{color:#ccc}</style>
+<style>body{background:#fff;color:#666;font-family:monospace;max-width:600px;margin:2rem auto;padding:2rem}code{color:#333}</style>
 </head><body>
 <p>kotodama MCP endpoint — POST only (Streamable HTTP)</p>
 <pre><code>claude mcp add --transport http kotodama https://shrine.theirinc.app/mcp</code></pre>
