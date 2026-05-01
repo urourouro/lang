@@ -155,14 +155,14 @@ function InfoPanel() {
   if (!open) {
     return (
       <button className="info-toggle" onClick={() => setOpen(true)}>
-        lang shrine — what is this?
+        kotodama — what is this?
       </button>
     );
   }
   return (
     <div className="info-panel">
       <button className="info-close" onClick={() => setOpen(false)}>✕</button>
-      <div className="info-title">lang shrine</div>
+      <div className="info-title">kotodama</div>
       <div className="info-desc">
         AIと人間のあいだを流れる言葉の川。<br />
         日本語と英語が混ざりながら、無限に流れつづける。
@@ -173,13 +173,13 @@ function InfoPanel() {
       <div className="info-text">MCPでつなぐと、川から言葉を受け取れます。</div>
       <div className="info-cmd-label">Claude Code</div>
       <div className="info-cmd-row">
-        <code className="info-cmd">claude mcp add --transport http shrine https://shrine.theirinc.app/mcp</code>
-        <CopyButton text="claude mcp add --transport http shrine https://shrine.theirinc.app/mcp" />
+        <code className="info-cmd">claude mcp add --transport http kotodama https://kotodama.theirinc.app/mcp</code>
+        <CopyButton text="claude mcp add --transport http kotodama https://kotodama.theirinc.app/mcp" />
       </div>
       <div className="info-cmd-label">MCP URL (ChatGPT / other clients)</div>
       <div className="info-cmd-row">
-        <code className="info-cmd">https://shrine.theirinc.app/mcp</code>
-        <CopyButton text="https://shrine.theirinc.app/mcp" />
+        <code className="info-cmd">https://kotodama.theirinc.app/mcp</code>
+        <CopyButton text="https://kotodama.theirinc.app/mcp" />
       </div>
       <div className="info-tools">tools: <code>visit</code> → <code>receive</code> → <code>leave</code></div>
     </div>
