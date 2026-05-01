@@ -8,12 +8,29 @@ interface StreamLine {
   lang: "en" | "ja";
   emitted_at: string;
   key: number;
+  arrivedAt: number;
+  // stable random positions [0,1]
+  rx: number;
+  ry: number;
+  rsize: number;
 }
 
 const WS_URL = import.meta.env.VITE_WS_URL ?? `wss://broker.theirinc.app/stream`;
-const MAX_LINES = 80;
+const MAX_LINES = 18;
+const FADE_DURATION_MS = 16000; // how long until a line fully fades
 
-const PEEK_URL = WS_URL.replace("wss://", "https://").replace("ws://", "http://").replace("/stream", "/peek?window_seconds=300&max_lines=30");
+function seededRandom(seed: number): number {
+  const x = Math.sin(seed + 1) * 43758.5453123;
+  return x - Math.floor(x);
+}
+
+function makePos(key: number) {
+  return {
+    rx: 0.04 + seededRandom(key * 3 + 0) * 0.72,
+    ry: 0.04 + seededRandom(key * 3 + 1) * 0.76,
+    rsize: 0.85 + seededRandom(key * 3 + 2) * 0.3,
+  };
+}
 
 function useStream(): { lines: StreamLine[]; peeked: boolean } {
   const [lines, setLines] = useState<StreamLine[]>([]);
@@ -21,22 +38,32 @@ function useStream(): { lines: StreamLine[]; peeked: boolean } {
   const counterRef = useRef(0);
   const peekedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Pre-populate from ring buffer before WS connects
   useEffect(() => {
+    const PEEK_URL = WS_URL
+      .replace("wss://", "https://")
+      .replace("ws://", "http://")
+      .replace("/stream", "/peek?window_seconds=120&max_lines=14");
+
     fetch(PEEK_URL)
       .then(r => r.json())
       .then((data: { lines?: Array<{ id: string; text: string; lang: string }> }) => {
         if (!data.lines) return;
-        const initial = [...data.lines].reverse().map(l => ({
-          id: l.id,
-          text: l.text,
-          lang: l.lang as "en" | "ja",
-          emitted_at: "",
-          key: counterRef.current++,
-        }));
+        const now = Date.now();
+        const initial = [...data.lines].map((l, i) => {
+          const k = counterRef.current++;
+          return {
+            id: l.id,
+            text: l.text,
+            lang: l.lang as "en" | "ja",
+            emitted_at: "",
+            key: k,
+            arrivedAt: now - (data.lines!.length - i) * 800,
+            ...makePos(k),
+          };
+        });
         setLines(initial);
       })
-      .catch(() => {/* ignore */});
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -50,19 +77,16 @@ function useStream(): { lines: StreamLine[]; peeked: boolean } {
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data as string) as {
-            type: string;
-            id: string;
-            text: string;
-            lang: "en" | "ja";
-            emitted_at: string;
+            type: string; id: string; text: string;
+            lang: "en" | "ja"; emitted_at: string;
           };
           if (data.type === "line") {
+            const k = counterRef.current++;
             const line: StreamLine = {
-              id: data.id,
-              text: data.text,
-              lang: data.lang,
-              emitted_at: data.emitted_at,
-              key: counterRef.current++,
+              id: data.id, text: data.text,
+              lang: data.lang, emitted_at: data.emitted_at,
+              key: k, arrivedAt: Date.now(),
+              ...makePos(k),
             };
             setLines((prev) => [line, ...prev].slice(0, MAX_LINES));
           } else if (data.type === "peeked") {
@@ -70,24 +94,14 @@ function useStream(): { lines: StreamLine[]; peeked: boolean } {
             if (peekedTimerRef.current) clearTimeout(peekedTimerRef.current);
             peekedTimerRef.current = setTimeout(() => setPeeked(false), 2000);
           }
-        } catch {
-          // ignore
-        }
+        } catch { /* ignore */ }
       };
 
-      ws.onclose = () => {
-        if (!stopped) {
-          timer = setTimeout(connect, 2000);
-        }
-      };
-
-      ws.onerror = () => {
-        ws?.close();
-      };
+      ws.onclose = () => { if (!stopped) timer = setTimeout(connect, 2000); };
+      ws.onerror = () => { ws?.close(); };
     }
 
     connect();
-
     return () => {
       stopped = true;
       if (timer) clearTimeout(timer);
@@ -97,12 +111,6 @@ function useStream(): { lines: StreamLine[]; peeked: boolean } {
   }, []);
 
   return { lines, peeked };
-}
-
-// Seed a deterministic "random" per character so animation params are stable
-function seededRandom(seed: number): number {
-  const x = Math.sin(seed + 1) * 43758.5453123;
-  return x - Math.floor(x);
 }
 
 function WindText({ text, lineKey }: { text: string; lineKey: number }) {
@@ -130,6 +138,33 @@ function WindText({ text, lineKey }: { text: string; lineKey: number }) {
         );
       })}
     </span>
+  );
+}
+
+function FloatingLine({ line, now }: { line: StreamLine; now: number }) {
+  const age = now - line.arrivedAt;
+  const t = Math.min(age / FADE_DURATION_MS, 1);
+  // newest: opacity 0.9, oldest: 0.08
+  const opacity = 0.9 - t * 0.82;
+  // slight drift downward with age
+  const drift = t * 18;
+
+  const style: React.CSSProperties = {
+    position: "absolute",
+    left: `${line.rx * 100}%`,
+    top: `calc(${line.ry * 100}% + ${drift}px)`,
+    transform: "translateX(-50%)",
+    opacity,
+    fontSize: `${line.rsize * 1.05}rem`,
+    maxWidth: "520px",
+    width: "max-content",
+    transition: "opacity 1.2s linear",
+  };
+
+  return (
+    <div className="line floating" style={style}>
+      <WindText text={line.text} lineKey={line.key} />
+    </div>
   );
 }
 
@@ -188,6 +223,12 @@ function InfoPanel() {
 
 function StreamView() {
   const { lines, peeked } = useStream();
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 500);
+    return () => clearInterval(id);
+  }, []);
 
   const latest = lines[0];
   const bgLang = latest?.lang ?? "en";
@@ -196,11 +237,9 @@ function StreamView() {
   return (
     <>
       <GLSLBackground lang={bgLang} textLen={bgTextLen} />
-      <div className="stream">
+      <div className="stream-field">
         {lines.map((line) => (
-          <div key={line.key} className="line">
-            <WindText text={line.text} lineKey={line.key} />
-          </div>
+          <FloatingLine key={line.key} line={line} now={now} />
         ))}
       </div>
       <div className={`peeked-indicator${peeked ? " visible" : ""}`}>
