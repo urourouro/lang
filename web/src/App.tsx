@@ -13,7 +13,7 @@ interface StreamLine {
 const WS_URL = import.meta.env.VITE_WS_URL ?? `wss://broker.theirinc.app/stream`;
 const MAX_LINES = 80;
 
-const PEEK_URL = WS_URL.replace("wss://", "https://").replace("ws://", "http://").replace("/stream", "/peek");
+const PEEK_URL = WS_URL.replace("wss://", "https://").replace("ws://", "http://").replace("/stream", "/peek?window_seconds=300&max_lines=30");
 
 function useStream(): { lines: StreamLine[]; peeked: boolean } {
   const [lines, setLines] = useState<StreamLine[]>([]);
