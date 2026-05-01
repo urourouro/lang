@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+// useState still used for peeked + lines; useRef for counter
 import GLSLBackground from "./GLSLBackground";
 import Recorder from "./Recorder";
 
@@ -141,30 +142,41 @@ function WindText({ text, lineKey }: { text: string; lineKey: number }) {
   );
 }
 
-function FloatingLine({ line, now }: { line: StreamLine; now: number }) {
-  const age = now - line.arrivedAt;
-  const t = Math.min(age / FADE_DURATION_MS, 1);
-  // newest: opacity 0.9, oldest: 0.08
-  const opacity = 0.9 - t * 0.82;
-  // slight drift downward with age
-  const drift = t * 18;
+function FloatingLine({ line }: { line: StreamLine }) {
+  // drift direction per line: -1 to +1, seeded
+  const dx = (seededRandom(line.key * 7 + 3) - 0.5) * 2; // horizontal drift direction
+  const dy = 0.3 + seededRandom(line.key * 7 + 4) * 0.7; // always drift downward
+
+  const driftX = dx * 120; // px over full fade duration
+  const driftY = dy * 180;
+
+  const animName = `drift-${line.key}`;
 
   const style: React.CSSProperties = {
     position: "absolute",
     left: `${line.rx * 100}%`,
-    top: `calc(${line.ry * 100}% + ${drift}px)`,
+    top: `${line.ry * 100}%`,
     transform: "translateX(-50%)",
-    opacity,
     fontSize: `${line.rsize * 1.05}rem`,
     maxWidth: "520px",
     width: "max-content",
-    transition: "opacity 1.2s linear",
+    animation: `float-in 600ms ease-out, ${animName} ${FADE_DURATION_MS}ms linear both`,
   };
 
+  const keyframes = `
+    @keyframes ${animName} {
+      0%   { opacity: 0.9; transform: translateX(-50%) translate(0px, 0px); }
+      100% { opacity: 0.0; transform: translateX(-50%) translate(${driftX}px, ${driftY}px); }
+    }
+  `;
+
   return (
-    <div className="line floating" style={style}>
-      <WindText text={line.text} lineKey={line.key} />
-    </div>
+    <>
+      <style>{keyframes}</style>
+      <div className="line floating" style={style}>
+        <WindText text={line.text} lineKey={line.key} />
+      </div>
+    </>
   );
 }
 
@@ -223,12 +235,6 @@ function InfoPanel() {
 
 function StreamView() {
   const { lines, peeked } = useStream();
-  const [now, setNow] = useState(Date.now());
-
-  useEffect(() => {
-    const id = setInterval(() => setNow(Date.now()), 500);
-    return () => clearInterval(id);
-  }, []);
 
   const latest = lines[0];
   const bgLang = latest?.lang ?? "en";
@@ -239,7 +245,7 @@ function StreamView() {
       <GLSLBackground lang={bgLang} textLen={bgTextLen} />
       <div className="stream-field">
         {lines.map((line) => (
-          <FloatingLine key={line.key} line={line} now={now} />
+          <FloatingLine key={line.key} line={line} />
         ))}
       </div>
       <div className={`peeked-indicator${peeked ? " visible" : ""}`}>
