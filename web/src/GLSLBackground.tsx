@@ -70,11 +70,11 @@ void main() {
 
   float pattern = fbm(p + 3.5 * q + vec2(1.7, 9.2) + t * 0.08);
 
-  // keep very dark so text stays readable
-  float brightness = pattern * (0.09 + u_text_len * 0.07);
+  // subtle texture on light background (multiply blend)
+  float brightness = 0.82 + pattern * (0.12 + u_text_len * 0.08);
 
-  vec3 cool = vec3(0.20, 0.34, 0.58); // blue-grey  (en)
-  vec3 warm = vec3(0.58, 0.32, 0.12); // amber-orange (ja)
+  vec3 cool = vec3(0.78, 0.82, 0.92); // cool grey-blue (en)
+  vec3 warm = vec3(0.92, 0.80, 0.68); // warm beige (ja)
   vec3 col  = mix(cool, warm, u_lang) * brightness;
 
   gl_FragColor = vec4(col, 1.0);
@@ -187,6 +187,8 @@ export default function GLSLBackground({ lang, textLen }: Props) {
         zIndex: -1,
         display: "block",
         pointerEvents: "none",
+        opacity: 0.35,
+        mixBlendMode: "multiply",
       }}
     />
   );
