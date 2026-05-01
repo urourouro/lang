@@ -13,11 +13,31 @@ interface StreamLine {
 const WS_URL = import.meta.env.VITE_WS_URL ?? `wss://broker.theirinc.app/stream`;
 const MAX_LINES = 80;
 
+const PEEK_URL = WS_URL.replace("wss://", "https://").replace("ws://", "http://").replace("/stream", "/peek");
+
 function useStream(): { lines: StreamLine[]; peeked: boolean } {
   const [lines, setLines] = useState<StreamLine[]>([]);
   const [peeked, setPeeked] = useState(false);
   const counterRef = useRef(0);
   const peekedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Pre-populate from ring buffer before WS connects
+  useEffect(() => {
+    fetch(PEEK_URL)
+      .then(r => r.json())
+      .then((data: { lines?: Array<{ id: string; text: string; lang: string }> }) => {
+        if (!data.lines) return;
+        const initial = [...data.lines].reverse().map(l => ({
+          id: l.id,
+          text: l.text,
+          lang: l.lang as "en" | "ja",
+          emitted_at: "",
+          key: counterRef.current++,
+        }));
+        setLines(initial);
+      })
+      .catch(() => {/* ignore */});
+  }, []);
 
   useEffect(() => {
     let ws: WebSocket | null = null;
