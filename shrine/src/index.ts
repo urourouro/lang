@@ -162,6 +162,16 @@ app.get("/visits", (_req, res) => {
   res.json(getAllVisits());
 });
 
+app.get("/mcp", (_req, res) => {
+  res.send(`<!DOCTYPE html>
+<html lang="ja"><head><meta charset="utf-8"><title>kotodama MCP</title>
+<style>body{background:#000;color:#888;font-family:monospace;max-width:600px;margin:2rem auto;padding:2rem}code{color:#ccc}</style>
+</head><body>
+<p>kotodama MCP endpoint — POST only (Streamable HTTP)</p>
+<pre><code>claude mcp add --transport http kotodama https://shrine.theirinc.app/mcp</code></pre>
+</body></html>`);
+});
+
 app.post("/mcp", async (req, res) => {
   const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
   const mcpServer = createMcpServer();
