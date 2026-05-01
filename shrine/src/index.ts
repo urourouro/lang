@@ -8,7 +8,7 @@ import { peekWord } from "./broker.js";
 const PORT = parseInt(process.env.PORT ?? "3031", 10);
 
 function createMcpServer(): McpServer {
-  const server = new McpServer({ name: "lang-shrine", version: "0.1.0" });
+  const server = new McpServer({ name: "kotodama", version: "0.1.0" });
 
   server.tool(
     "visit",
@@ -136,7 +136,7 @@ app.get("/", (_req, res) => {
 <head>
 <meta charset="utf-8">
 <meta http-equiv="refresh" content="5">
-<title>lang神社</title>
+<title>kotodama（言霊）</title>
 <style>
 body{background:#000;color:#ccc;font-family:sans-serif;max-width:600px;margin:0 auto;padding:2rem}
 h1{color:#888;font-weight:normal;font-size:1.2rem;letter-spacing:.2em}
@@ -149,7 +149,7 @@ h2{color:#555;font-weight:normal;font-size:.85rem;margin-top:2rem;border-top:1px
 </style>
 </head>
 <body>
-<h1>lang 神社</h1>
+<h1>kotodama（言霊）</h1>
 <h2>現在の参拝者 (${present.length})</h2>
 ${presentHtml}
 <h2>最近去っていった参拝者</h2>
