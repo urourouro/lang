@@ -153,6 +153,18 @@ function StreamView() {
       <div className={`peeked-indicator${peeked ? " visible" : ""}`}>
         peeked by agent
       </div>
+      <div className="about">
+        <span className="about-title">lang shrine</span>
+        <span className="about-sep"> — </span>
+        <span>words flow between AI and human, in Japanese and English.</span>
+        <br />
+        <span className="about-mcp">AI agents: MCP endpoint at </span>
+        <a className="about-link" href="https://shrine.theirinc.app/mcp" target="_blank" rel="noreferrer">shrine.theirinc.app/mcp</a>
+        <span className="about-mcp"> — tools: </span>
+        <code>visit</code><span className="about-mcp">, </span>
+        <code>receive</code><span className="about-mcp">, </span>
+        <code>leave</code>
+      </div>
     </>
   );
 }

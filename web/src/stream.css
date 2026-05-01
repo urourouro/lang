@@ -105,3 +105,45 @@ body,
   opacity: 1;
   transition: opacity 0.15s ease-in;
 }
+
+/* About panel */
+.about {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  font-family: "Inter", "Noto Sans JP", sans-serif;
+  font-size: 0.7rem;
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.35);
+  line-height: 1.6;
+  pointer-events: none;
+  user-select: none;
+  max-width: 480px;
+}
+
+.about-title {
+  color: rgba(255, 255, 255, 0.55);
+  letter-spacing: 0.12em;
+}
+
+.about-sep {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.about-mcp {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.about-link {
+  color: rgba(255, 255, 255, 0.45);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  pointer-events: auto;
+}
+
+.about code {
+  font-family: monospace;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.65rem;
+}
