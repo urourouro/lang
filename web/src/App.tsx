@@ -10,7 +10,7 @@ interface StreamLine {
   key: number;
 }
 
-const WS_URL = `ws://${window.location.hostname}:3030/stream`;
+const WS_URL = import.meta.env.VITE_WS_URL ?? `wss://broker.theirinc.app/stream`;
 const MAX_LINES = 80;
 
 function useStream(): { lines: StreamLine[]; peeked: boolean } {
@@ -79,6 +79,40 @@ function useStream(): { lines: StreamLine[]; peeked: boolean } {
   return { lines, peeked };
 }
 
+// Seed a deterministic "random" per character so animation params are stable
+function seededRandom(seed: number): number {
+  const x = Math.sin(seed + 1) * 43758.5453123;
+  return x - Math.floor(x);
+}
+
+function WindText({ text, lineKey }: { text: string; lineKey: number }) {
+  return (
+    <span className="wind-text">
+      {[...text].map((char, i) => {
+        const r1 = seededRandom(lineKey * 1000 + i);
+        const r2 = seededRandom(lineKey * 1000 + i + 500);
+        const r3 = seededRandom(lineKey * 1000 + i + 999);
+        const delay = (r1 * 2).toFixed(2);
+        const dur = (2.5 + r2 * 3).toFixed(2);
+        const amp = (0.5 + r3 * 1.2).toFixed(2);
+        return (
+          <span
+            key={i}
+            className="wind-char"
+            style={{
+              animationDelay: `${delay}s`,
+              animationDuration: `${dur}s`,
+              "--amp": amp,
+            } as React.CSSProperties}
+          >
+            {char === " " ? "\u00a0" : char}
+          </span>
+        );
+      })}
+    </span>
+  );
+}
+
 function StreamView() {
   const { lines, peeked } = useStream();
 
@@ -92,7 +126,7 @@ function StreamView() {
       <div className="stream">
         {lines.map((line) => (
           <div key={line.key} className="line">
-            {line.text}
+            <WindText text={line.text} lineKey={line.key} />
           </div>
         ))}
       </div>

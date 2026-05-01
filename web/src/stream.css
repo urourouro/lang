@@ -67,6 +67,25 @@ body,
   }
 }
 
+/* Wind animation per character */
+.wind-text {
+  display: inline;
+}
+
+.wind-char {
+  display: inline-block;
+  animation: wind-sway linear infinite;
+  will-change: transform;
+}
+
+@keyframes wind-sway {
+  0%   { transform: translateY(0px) rotate(0deg); }
+  20%  { transform: translateY(calc(var(--amp, 1) * -1.2px)) rotate(calc(var(--amp, 1) * -0.15deg)); }
+  45%  { transform: translateY(calc(var(--amp, 1) * 0.8px))  rotate(calc(var(--amp, 1) *  0.1deg)); }
+  70%  { transform: translateY(calc(var(--amp, 1) * -0.5px)) rotate(calc(var(--amp, 1) * -0.08deg)); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
 .peeked-indicator {
   position: fixed;
   bottom: 1.5rem;
